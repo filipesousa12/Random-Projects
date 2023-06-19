@@ -1,0 +1,377 @@
+---
+title: "Trabalho"
+author: "Francisco"
+date: "10/06/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#Pergunta 7
+# Gera um nÃmero pseudo-aleatÃ³rio para a distribuiÃ§Ã£o que toma o valor 1 com probabilidade p e o valor 0 com probabilidade -1
+StepSize = function(p){
+  if (runif(1)<=p) {
+    res <- 1
+  } else {
+    res <- -1
+  }
+  return (res)
+}
+
+
+# Simula um passeio aleatÃ³rio que comeÃ§a no ponto n e que termina quando atinge o valor 0 ou M0
+SimulateRandomWalk= function(p,n,M0){
+  statelist <- c(n)
+  currstate <- n 
+  done <- (currstate<= 0) | (currstate >=M0)
+  while (!done){
+    nextstate <- currstate + StepSize(p)
+    statelist <- c(statelist,nextstate)
+    currstate <- nextstate
+    done <- (currstate<= 0) | (currstate >=M0)
+  }
+  return (statelist)
+}
+
+
+# Exemplo:
+SimulateRandomWalk(0.6,1,10)
+
+
+# Estima a probabilidade do passeio atingir o ponto M0, tendo partido do ponto n
+AbsorptionPctatM = function(p,n,M0, numreps){
+  absatM <- 0
+  for (i in 1:numreps){
+    poslist <- SimulateRandomWalk(p,n,M0)
+    lastpos <- tail(poslist,1)
+    if(lastpos == M0){absatM <- absatM+1}
+  }
+  
+  empprob <- absatM/numreps
+  return(empprob)
+}
+
+# Exemplo
+AbsorptionPctatM(0.4,3,5,1000)
+
+
+
+p <- seq(0.1,0.9, by = 0.05)
+walk1 <- c()
+for (i in 1:length(p)){
+  walk1<- c(walk1,AbsorptionPctatM(p[i],5,10,2000))
+}
+
+plot(p,walk1)
+
+
+p <- seq(0.1,0.9, by = 0.05)
+walk2 <- c()
+for (i in 1:length(p)){
+  walk2<- c(walk2,AbsorptionPctatM(p[i],3,10,2000))
+}
+plot(p,walk2)
+
+p <- seq(0.1,0.9, by = 0.05)
+walk3 <- c()
+for (i in 1:length(p)){
+  walk3<- c(walk3,AbsorptionPctatM(p[i],7,10,2000))
+}
+plot(p,walk3)
+
+p <- seq(0.1,0.9, by = 0.05)
+walk4 <- c()
+for (i in 1:length(p)){
+  walk4<- c(walk4,AbsorptionPctatM(p[i],10,20,2000))
+}
+plot(p,walk4)
+
+p <- seq(0.1,0.9, by = 0.05)
+walk5 <- c()
+for (i in 1:length(p)){
+  walk5<- c(walk5,AbsorptionPctatM(p[i],8,16,2000))
+}
+plot(p,walk5)
+
+n <- seq(0,7, by =1)
+walk <- c()
+for (i in 1:length(n)){
+  walk<- c(walk,AbsorptionPctatM(0.48,n[i],7,1000))
+}
+walk
+plot(n,walk)
+```
+
+```{r}
+#Pergunta 8
+require(ggplot2)
+
+StepSize = function(p){
+  if (runif(1)<=p) {
+    res <- 1
+  } else {
+    res <- -1
+  }
+  return (res)
+}
+
+SimulateRandomWalk= function(p,n,M0){
+  statelist <- c(n)
+  currstate <- n 
+  done <- (currstate<= 0) | (currstate >=M0)
+  while (!done){
+    nextstate <- currstate + StepSize(p)
+    statelist <- c(statelist,nextstate)
+    currstate <- nextstate
+    done <- (currstate<= 0) | (currstate >=M0)
+  }
+  return (statelist)
+}
+SimulateRandomWalk(0.4,3,5)
+
+
+p <- 0.4
+n <- 3
+M <- 5
+
+n_passos <- c()
+for (i in 1:5000){
+  n_passos <- c(n_passos,length(SimulateRandomWalk(p,n,M))-1)
+}
+media <- mean(n_passos);media
+var <- var(n_passos);var
+n_ganhar<-c()
+n_passoserder<-c()
+for (i in 1:5000){
+  if (n_passos[i]%%2==0){
+    n_ganhar<-c(n_ganhar,n_passos[i])
+  } else {
+    n_passoserder<-c(n_passoserder,n_passos[i])
+  }
+}
+med_g<-mean(n_ganhar)
+med_p<-mean(n_passoserder)
+var_g<-var(n_ganhar)
+var_p<-var(n_passoserder)
+table(n_passos)
+
+
+np<-data.frame(table(n_passos)/5000)
+names(np)[2]<-"Prob"
+ggplot(data=np, aes(x=n_passos, y=Prob))+
+  geom_bar(stat="identity")
+exemplo<-plot(SimulateRandomWalk(0.4,3,5), ylim=c(0,5), ylab="")
+```
+
+```{r}
+Dado = function(){
+  k<-runif(1)
+  if (k<=1/4) {
+    res <- 1
+  } else {
+    if (k<=1/2) {
+      res<-2
+    } else {
+      if (k<=3/4) {
+        res<-3
+      } else {
+        res<-4
+      }
+    }
+  }
+  return (res)
+}
+
+SimulateRandomWalk= function(p,n,M0){
+  statelist <- c(n)
+  currstate <- n 
+  done <- (currstate<= 0) | (currstate >=M0)
+  while (!done){
+    nextstate <- currstate + StepSize(p)
+    statelist <- c(statelist,nextstate)
+    currstate <- nextstate
+    done <- (currstate<= 0) | (currstate >=M0)
+  }
+  return (statelist)
+}
+
+JogoDado= function(n1,n2,M0){
+  list1<-c(n1)
+  list2<- c(n2)
+  est1<-n1
+  est2<-n2
+  done <- (est1<= 0) | (est1 >=M0) | (est2<= 0) | (est2 >=M0)
+  while (!done){
+    dado1<-Dado()
+    dado2<-Dado()
+    estseg1 <- est1 + (dado1-dado2)
+    estseg2<-est2+(dado2-dado1)
+    list1 <- c(list1,estseg1)
+    list2 <- c(list2,estseg2)
+    est1 <- estseg1
+    est2 <- estseg2
+    done <- (est1<= 0) | (est1 >=M0) | (est2<= 0) | (est2 >=M0)
+  }
+  return (cbind(list1,list2))
+  
+}
+
+N_Passos=function(n1,n2,M0,k) {
+  s<-c()
+  for (i in 1:k){
+    x<-JogoDado(n1,n2,M0)
+    s<-c(s,length(x[,1])-1)
+  }
+  return (s)
+}
+
+Prob_ganhar=function(n1,n2,M0,k) {
+  s<-0
+  for (i in 1:k){
+    x<-JogoDado(n1,n2,M0)
+    n<-length(x[,1])
+    if (x[n,1]>=M0) {
+      s<-s+1
+    } else {
+      s<-s
+    }
+  }
+  return (s/k)
+}
+```
+
+```{r}
+#Pergunta 9
+#Probailidade de ganhar
+p<-c()
+```
+
+```{r}
+p<-c(p,Prob_ganhar(5,5,10,5000))
+```
+
+```{r}
+p<-c(p,Prob_ganhar(6,4,10,5000))
+```
+
+```{r}
+p<-c(p,Prob_ganhar(7,3,10,5000))
+```
+
+```{r}
+p<-c(p,Prob_ganhar(8,2,10,5000))
+```
+
+```{r}
+p<-c(p,Prob_ganhar(9,1,10,5000))
+plot(c(5,6,7,8,9),p, xlab="Pontos no início", ylab="Probabilidade de vitória",ylim=c(0.5,1))
+```
+
+```{r}
+#Número de passos do jogo
+x<-N_Passos(5,5,10,5000)
+hist<-data.frame(table(x)/5000)
+names(hist)[2]<-"Prob"
+names(hist)[1]<-"N_jogadas"
+ggplot(data=hist, aes(x=N_jogadas, y=Prob))+
+  geom_bar(stat="identity")
+
+mean(x)
+var(x)
+
+```
+
+```{r}
+x<-N_Passos(4,6,10,5000)
+hist<-data.frame(table(x)/5000)
+names(hist)[2]<-"Prob"
+names(hist)[1]<-"N_jogadas"
+ggplot(data=hist, aes(x=N_jogadas, y=Prob))+
+  geom_bar(stat="identity")
+mean(x)
+
+```
+
+```{r}
+x<-N_Passos(3,7,10,5000)
+hist<-data.frame(table(x)/5000)
+names(hist)[2]<-"Prob"
+names(hist)[1]<-"N_jogadas"
+ggplot(data=hist, aes(x=N_jogadas, y=Prob))+
+  geom_bar(stat="identity")
+mean(x)
+
+```
+
+```{r}
+x<-N_Passos(2,8,10,5000)
+hist<-data.frame(table(x)/5000)
+names(hist)[2]<-"Prob"
+names(hist)[1]<-"N_jogadas"
+ggplot(data=hist, aes(x=N_jogadas, y=Prob))+
+  geom_bar(stat="identity")
+mean(x)
+
+```
+
+```{r}
+x<-N_Passos(1,9,10,5000)
+hist<-data.frame(table(x)/5000)
+names(hist)[2]<-"Prob"
+names(hist)[1]<-"N_jogadas"
+ggplot(data=hist, aes(x=N_jogadas, y=Prob))+
+  geom_bar(stat="identity")
+mean(x)
+
+```
+
+```{r}
+#Influência do tamanho do intervalo
+x<-N_Passos(5,5,10,5000)
+hist<-data.frame(table(x)/5000)
+names(hist)[2]<-"Prob"
+names(hist)[1]<-"N_jogadas"
+ggplot(data=hist, aes(x=N_jogadas, y=Prob))+
+  geom_bar(stat="identity")
+mean(x)
+var(x)
+
+```
+
+```{r}
+x<-N_Passos(7,7,14,5000)
+hist<-data.frame(table(x)/5000)
+names(hist)[2]<-"Prob"
+names(hist)[1]<-"N_jogadas"
+ggplot(data=hist, aes(x=N_jogadas, y=Prob))+
+  geom_bar(stat="identity")
+mean(x)
+var(x)
+
+```
+
+```{r}
+x<-N_Passos(3,3,6,5000)
+hist<-data.frame(table(x)/5000)
+names(hist)[2]<-"Prob"
+names(hist)[1]<-"N_jogadas"
+ggplot(data=hist, aes(x=N_jogadas, y=Prob))+
+  geom_bar(stat="identity")
+mean(x)
+var(x)
+
+```
+
+```{r}
+g<-c()
+for (i in 1:10){
+  j<-2*i
+  g<-c(g,mean(N_Passos(j/2,j/2,j,5000)))
+}
+plot(g, ylab="N médio de jogadas", xlab="M/2")
+
+```
+
